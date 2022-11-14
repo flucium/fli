@@ -35,7 +35,7 @@ fn clap_app() -> Command {
         ])
 }
 
-fn walk_dir(path: &Path, is_recursive: bool, is_dot_file: bool) -> io::Result<Vec<PathBuf>> {
+fn walk(path: &Path, is_recursive: bool, is_dot_file: bool) -> io::Result<Vec<PathBuf>> {
     let mut buffer = Vec::new();
 
     let entries = path.read_dir()?;
@@ -57,7 +57,7 @@ fn walk_dir(path: &Path, is_recursive: bool, is_dot_file: bool) -> io::Result<Ve
         buffer.push(entry.path());
 
         if entry.file_type()?.is_dir() == true && is_recursive {
-            let entries = walk_dir(&entry.path(), is_recursive, is_dot_file)?;
+            let entries = walk(&entry.path(), is_recursive, is_dot_file)?;
             for entry in entries {
                 buffer.push(entry);
             }
@@ -77,7 +77,7 @@ fn main() {
         None => Path::new("./"),
     };
 
-    match walk_dir(path, matches.get_flag("recursive"), matches.get_flag("all")) {
+    match walk(path, matches.get_flag("recursive"), matches.get_flag("all")) {
         Ok(entries) => {
             let mut stdout = io::stdout().lock();
             for entry in entries {
